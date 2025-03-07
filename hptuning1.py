@@ -6,23 +6,20 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-# -----------------------------
-# 1. Create Synthetic Dataset
-# -----------------------------
 np.random.seed(42)
 n_samples = 200
 
-# Generate continuous features (angles and speed)
+
 elbow = np.random.uniform(20, 160, n_samples)
 knee = np.random.uniform(20, 160, n_samples)
 shoulder = np.random.uniform(20, 160, n_samples)
 back = np.random.uniform(20, 160, n_samples)
 speed = np.random.uniform(80, 150, n_samples)
 
-# Generate categorical features (encoded as integers)
+
 bowling_type = np.random.choice([0, 1], n_samples)      # e.g., 0: spin, 1: fast
-action = np.random.choice([0, 1], n_samples)              # e.g., 0: underarm, 1: overarm
-pitch_type = np.random.choice([0, 1, 2], n_samples)       # e.g., 0: grass, 1: concrete, 2: artificial
+action = np.random.choice([0, 1], n_samples)              
+pitch_type = np.random.choice([0, 1, 2], n_samples)       
 
 # Create DataFrame
 df = pd.DataFrame({
@@ -64,7 +61,26 @@ candidate_weights_list = []
 weight_descriptions = []
 
 # Create 12 candidate sets by perturbing one weight at a time (cyclically)
-for i in range(12):
+for i in range(24):
+    candidate = default_weights.copy()
+    idx = i % 8  # choose feature index to change
+    # Increase the weight of feature 'idx' by increasing increments
+    if i < 8:
+        increment = 0.05  # first cycle: small increment
+    elif i < 16:
+        increment = 0.1   # second cycle: medium increment
+    else:
+        increment = 0.15  # third cycle: large increment
+    
+    candidate[idx] += increment
+    # Redistribute excess to maintain sum of 1
+    excess = candidate[idx] - default_weights[idx]
+    for j in range(8):
+        if j != idx:
+            candidate[j] -= excess / 7
+    
+    candidate_weights_list.append(candidate)
+    weight_descriptions.append(f"Candidate {i+1} (change feature {idx})")
     candidate = default_weights.copy()
     idx = i % 8  # choose feature index to change
     # Increase the weight of feature 'idx' by 0.05 (or 0.1 for second cycle) 
