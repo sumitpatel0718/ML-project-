@@ -66,11 +66,11 @@ for i in range(24):
     idx = i % 8  # choose feature index to change
     # Increase the weight of feature 'idx' by increasing increments
     if i < 8:
-        increment = 0.05  # first cycle: small increment
+        increment = 0.05  
     elif i < 16:
-        increment = 0.1   # second cycle: medium increment
+        increment = 0.1   
     else:
-        increment = 0.15  # third cycle: large increment
+        increment = 0.15  
     
     candidate[idx] += increment
     # Redistribute excess to maintain sum of 1
@@ -95,9 +95,6 @@ for i in range(24):
     candidate_weights_list.append(candidate)
     weight_descriptions.append(f"Candidate {i+1} (change feature {idx})")
 
-# -----------------------------
-# 5. Evaluate Each Candidate Weight Set
-# -----------------------------
 results = []
 for desc, weights in zip(weight_descriptions, candidate_weights_list):
     # Compute risk scores on training set
@@ -105,11 +102,9 @@ for desc, weights in zip(weight_descriptions, candidate_weights_list):
     # Determine threshold from training set (using median)
     threshold_candidate = np.median(risk_train)
     
-    # Compute risk scores on test set and predict labels
     risk_test = X_test.values.dot(weights)
     y_pred = (risk_test > threshold_candidate).astype(int)
     
-    # Compute accuracy
     acc = accuracy_score(y_test, y_pred)
     results.append({'Candidate': desc, 'Weights': np.round(weights, 3), 'Accuracy': np.round(acc, 3)})
 
